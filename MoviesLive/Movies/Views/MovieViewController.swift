@@ -18,6 +18,10 @@ class MovieViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         tableView.register(UINib(nibName: "MovieTableViewCell", bundle: nil), forCellReuseIdentifier: cellReuseId)
+        
+        MovieService().loadMovies(forKindId: "") { movies in
+            print(movies)
+        }
     }
     
     @IBAction func presentNextAction(_ sender: Any) {
@@ -37,6 +41,8 @@ class MovieViewController: UIViewController {
 
 }
 let movies: [Movie] = [Movie(titre: "Shrek", sous_titre: "Shrek: Les Origines", date_sortie: "4 Jul 2001", duree_film: TimeInterval(5_400), categories: ["Fantastique", "Action", "Aventure"], synopsis: "Il était une fois, dans un marais lointain, un ogre au nom de Shrek qui voit sa précieuse solitude brisée pas une invasion de personnages de contes de fées agaçants. Ils ont tous été bannis de leur royaume par le méchant Lord Farquaad.", affiche: "shrek_affiche", poster: "shrek_poster", trailer_lien: URL(string: "https://www.youtube.com/watch?v=CwXOrWvPBPk")!), Movie(titre: "Le Chat Potté", sous_titre: "Un chat pas comme les autres", date_sortie: "11 Sep 2011", duree_film: TimeInterval(5_900), categories: ["Drame", "Action", "Avion"], synopsis: "Il était une fois, deux tours surplombant New York. Mais un beau jour, un avion a décidé de se planter dedans. Mais le Chat Potté est apparu pour sauver tous les humains et l'histoire s'est bien terminée.", affiche: "chat_potte", poster: "shrek_poster", trailer_lien: URL(string: "https://www.youtube.com/watch?v=hfh2Tk3sXCs")!)]
+
+
 
 extension MovieViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
