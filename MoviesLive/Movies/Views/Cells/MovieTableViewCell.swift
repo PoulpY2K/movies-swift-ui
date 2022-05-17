@@ -22,8 +22,6 @@ class MovieTableViewCell: UITableViewCell {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
     }
     
     override func prepareForReuse() {
@@ -39,8 +37,12 @@ class MovieTableViewCell: UITableViewCell {
         titleLabel.text = title
         descriptionLabel.text = description
         dateLabel.text = date
-        //force a changer
-        movieImage.load(url: URL(string: image)!, placeholder: UIImage(), cache: nil)
+        
+        /// On vérifie que l'URL parvient à être construit avant de charger
+        /// l'image de manière asynchrone
+        if let imageURL = URL(string: image) {
+            movieImage.load(url: imageURL, placeholder: UIImage(), cache: nil)
+        }
     }
 }
 

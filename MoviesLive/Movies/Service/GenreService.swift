@@ -8,8 +8,9 @@
 import Foundation
 
 class GenreService {
+    /// Récupère la liste des catégories de films
     func loadGenresList(completion: @escaping ([Genre]) -> ()) {
-        guard let genresURL = URL(string: "https://api.themoviedb.org/3/genre/movie/list?api_key=97c9243f1e93077660701f0bae3394b9") else { return };
+        guard let genresURL = URL(string: K.GenreApi.genresListUrl) else { return };
         
         URLSession.shared.dataTask(with: genresURL) { data, _, error in
             guard let data = data, error == nil else {

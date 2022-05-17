@@ -8,8 +8,9 @@
 import Foundation
 
 class MovieService {
+    /// Récupère les films par catégorie
     func loadGenreMovies(genreId: Int, completion: @escaping ([Movie]) -> ()) {
-        guard let moviesURL = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=97c9243f1e93077660701f0bae3394b9&with_genres=\(genreId)") else { return };
+        guard let moviesURL = URL(string: K.MovieApi.moviesPerGenreUrl + String(genreId)) else { return };
         
         URLSession.shared.dataTask(with: moviesURL) { data, _, error in
             guard let data = data, error == nil else {
@@ -32,8 +33,9 @@ class MovieService {
         }.resume()
     }
     
+    /// Récupère les détails d'un film
     func loadMovieDetails(movieId: Int, completion: @escaping (MovieDetails?) -> ()) {
-        guard let moviesURL = URL(string: "https://api.themoviedb.org/3/movie/\(movieId)?api_key=97c9243f1e93077660701f0bae3394b9&language=fr-FR") else { return };
+        guard let moviesURL = URL(string: "\(K.movieApiBaseUrl)/\(movieId)?api_key=\(K.apiKey)&language=fr-FR") else { return };
         
         URLSession.shared.dataTask(with: moviesURL) { data, _, error in
             guard let data = data, error == nil else {
@@ -55,8 +57,9 @@ class MovieService {
         }.resume()
     }
     
+    /// Récupère la clef de la vidéo YouTube du film passé en paramètre
     func loadMovieVideoLink(movieId: Int, completion: @escaping (MovieVideo?) -> ()) {
-        guard let moviesVideosURL = URL(string: "https://api.themoviedb.org/3/movie/\(movieId)/videos?api_key=97c9243f1e93077660701f0bae3394b9&language=fr-FR") else { return };
+        guard let moviesVideosURL = URL(string: "\(K.movieApiBaseUrl)/\(movieId)/videos?api_key=\(K.apiKey)&language=fr-FR") else { return };
         
         URLSession.shared.dataTask(with: moviesVideosURL) { data, _, error in
             guard let data = data, error == nil else {
@@ -73,6 +76,7 @@ class MovieService {
             }
             
             DispatchQueue.main.async {
+                /// On vérifie que le film possède bien une vidéo avant de compléter, sinon renvoie vide
                 if let finalMovieVideoPage = movieVideoPage {
                     if(finalMovieVideoPage.results.count > 0) {
                         completion(finalMovieVideoPage.results[0])

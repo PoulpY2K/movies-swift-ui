@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
+/// On étend la classe UIImageView pour implémenter  la lecture asynchrone des images
 extension UIImageView {
     /// Loads image from web asynchronosly and caches it, in case you have to load url
     /// again, it will be loaded from cache if available
