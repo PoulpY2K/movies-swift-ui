@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class MovieTableViewCell: UITableViewCell {
     @IBOutlet weak var movieImage: UIImageView!
@@ -31,14 +32,15 @@ class MovieTableViewCell: UITableViewCell {
         titleLabel.text = nil
         descriptionLabel.text = nil
         dateLabel.text = nil
-        movieImage.image = nil
+        movieImage.image = UIImage(named: "empty")
     }
     
-    func setupCell(title: String, description: String, date: String, image: UIImage) {
+    func setupCell(title: String, description: String, date: String, image: String) {
         titleLabel.text = title
         descriptionLabel.text = description
         dateLabel.text = date
-        movieImage.image = image
+        //force a changer
+        movieImage.load(url: URL(string: image)!, placeholder: UIImage(), cache: nil)
     }
 }
 

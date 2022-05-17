@@ -2,7 +2,7 @@
 //  MovieView.swift
 //  MoviesLive
 //
-//  Created by Digital on 04/04/2022.
+//  Created by Jérémy Laurent on 04/04/2022.
 //
 
 import SwiftUI
