@@ -17,7 +17,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             
-            let rootViewController = MovieViewController(nibName: "MovieViewController", bundle: Bundle.main)
+            /// On démarre l'application sur le GenreViewController
+            let rootViewController = GenreViewController(nibName: "GenreViewController", bundle: Bundle.main)
             let navigationController = UINavigationController(rootViewController: rootViewController)
             window.rootViewController = navigationController
             

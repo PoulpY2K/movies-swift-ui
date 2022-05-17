@@ -8,58 +8,92 @@
 import SwiftUI
 
 struct MoviesDetailsView: View {
+    let movie: MovieDetails
+    let video_key: String
     
-    let movie: Movie
-    
-    init(movie: Movie?) {
-        self.movie = movie!
+    init(movie: MovieDetails, video_key: String?) {
+        self.movie = movie
+        
+        /// On vérifie que la clef du lien YouTube est bien présente, sinon vide
+        if let finalVideoKey = video_key {
+            self.video_key = finalVideoKey
+        } else {
+            self.video_key = ""
+        }
     }
     
     let screenSize: CGRect = UIScreen.main.bounds
     
+    /// Fonction permettant de formater la date
     func getTodayDateLocale() -> String {
         let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d MMM y"
-        let englishDate: Date = dateFormatter.date(from: movie.date_sortie)!
-        dateFormatter.dateStyle = .long
-        dateFormatter.timeStyle = .none
-        dateFormatter.locale    = Locale(identifier: "FR-fr")
-        return dateFormatter.string(from: englishDate)
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        /// On vérifie que la date est bien valide, sinon on remplace par aucune
+        if let englishDate: Date = dateFormatter.date(from: movie.release_date) {
+            dateFormatter.dateStyle = .long
+            dateFormatter.timeStyle = .none
+            dateFormatter.locale    = Locale(identifier: "FR-fr")
+            return dateFormatter.string(from: englishDate)
+        } else {
+            return "Aucune date enregistrée"
+        }
     }
     
-    func getTimeFormatted() -> String {
-        let timeFormatter: DateComponentsFormatter = DateComponentsFormatter()
-        timeFormatter.unitsStyle = .abbreviated
-        timeFormatter.zeroFormattingBehavior = .dropAll
-        timeFormatter.allowedUnits = [.hour, .minute]
-        return timeFormatter.string(from: movie.duree_film)!
+    /// Fonction permettant de transformer le temps en minutes en heures + minutes
+    func getTimeFormatted(time: Int) -> String {
+        let hours = time / 60 % 60
+        let minutes = time % 60
+        
+        return "\(hours)h\(minutes)m"
     }
     
     var body: some View {
         VStack(content: {
+            /// ZStack contenant l'affiche et le poster
             ZStack(alignment: .top, content: {
                 VStack(content: {
-                    Image(movie.poster).resizable().aspectRatio(contentMode: .fill).frame(width: screenSize.width, height: screenSize.height/3).ignoresSafeArea().cornerRadius(15)
+                    /// Pendant que l'image charge, on remplace par un spinner et un fond gris
+                    AsyncImage(url: URL(string: K.TMDBImageURL + movie.backdrop_path)) {
+                        image in image.resizable().aspectRatio(contentMode: .fill).frame(width: screenSize.width, height: screenSize.height/3).ignoresSafeArea().cornerRadius(15)
+                    } placeholder: {
+                        ProgressView().tint(.white).scaleEffect(1.5, anchor: .center).frame(width: screenSize.width, height: screenSize.height/3).ignoresSafeArea().background(.gray)
+                    }
+                    
                 })
+                
                 VStack(content: {
-                    Image(movie.affiche).resizable().aspectRatio(contentMode: .fill).frame(width: screenSize.width/3, height: screenSize.height/4).cornerRadius(10)
+                    /// Pendant que l'image charge, on remplace par un spinner et un fond gris
+                    AsyncImage(url: URL(string: K.TMDBImageURL + movie.poster_path)){
+                        image in
+                        image.resizable().aspectRatio(contentMode: .fit).frame(width: screenSize.width/3, height: screenSize.height/4).cornerRadius(10)
+                    } placeholder: {
+                        ProgressView().tint(.black).scaleEffect(1.5, anchor: .center).frame(width: screenSize.width/3, height: screenSize.height/4).cornerRadius(10).ignoresSafeArea().background(Color("light_gray"))
+                    }
                 }).frame(minWidth:0, maxWidth: screenSize.width, minHeight: 0, maxHeight: screenSize.height/2.2, alignment: .bottom)
             })
             
             VStack(spacing: screenSize.width/25, content: {
+                
+                /// VStack du titre du film
                 VStack(spacing: screenSize.width/90, content: {
-                    Text(movie.titre)
+                    Text(movie.title)
                         .font(.title)
                         .fontWeight(.heavy)
                     
-                    Text(movie.sous_titre)
+                    Text(movie.original_title)
                         .font(.callout)
                         .fontWeight(.regular)
                 })
                 
+                /// HStack et son ForEach permettant d'afficher trois catégories dans des pills
+                /// On vérifie que le nombre de catégories  n'est pas inférieur à 3 pour éviter de tomber
+                /// en dehors de l'index du tableau
                 HStack(alignment: .center, spacing: screenSize.width/15, content: {
-                    ForEach(0...2, id: \.self) {
-                        Text(movie.categories[$0])
+                    let nbOfGenre: Int = movie.genres.count >= 3 ? 3 : movie.genres.count
+                    
+                    ForEach(0...nbOfGenre-1, id: \.self) {
+                        Text(movie.genres[$0].name)
                             .font(.footnote)
                             .fontWeight(.bold)
                             .foregroundColor(Color.white)
@@ -70,12 +104,18 @@ struct MoviesDetailsView: View {
                                     bottom: 5,
                                     trailing: 10) )
                             .background(
-                                Color("dark_green")
+                                Color(
+                                    red: .random(in: 0...0.5),
+                                    green: .random(in: 0...0.5),
+                                    blue: .random(in: 0...0.5)
+                                )
                             )
                             .cornerRadius(60)
+                        
                     }
                 })
                 
+                /// HStack qui affiche la date de sortie et la durée du film
                 HStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: screenSize.width/20, content: {
                     Text(getTodayDateLocale())
                         .font(.subheadline)
@@ -85,7 +125,7 @@ struct MoviesDetailsView: View {
                         .font(.subheadline)
                         .fontWeight(.light)
                     
-                    Text(getTimeFormatted())
+                    Text(getTimeFormatted(time: movie.runtime))
                         .font(.subheadline)
                         .fontWeight(.light)
                     
@@ -99,12 +139,13 @@ struct MoviesDetailsView: View {
                 Divider()
             }).frame(width: screenSize.width/1.1, height: screenSize.height/50, alignment:.center)
             
+            /// VStack et ScrollView du résumé du film
             VStack(alignment: .leading, spacing: screenSize.height/40, content: {
                 Text("Synopsis")
                     .font(.title3)
                     .fontWeight(.medium)
                 ScrollView(content: {
-                    Text(movie.synopsis)
+                    Text(movie.overview)
                         .font(.body)
                         .fontWeight(.regular)
                         .lineLimit(nil)
@@ -115,13 +156,20 @@ struct MoviesDetailsView: View {
                 Divider()
             }).frame(width: screenSize.width/1.1, height: screenSize.height/40, alignment:.center)
             
+            /// VStack contenant le bouton et le lien de la vidéo YouTube
             VStack(alignment: .trailing, content: {
-                Button(action: {  UIApplication.shared.open(movie.trailer_lien, options: [:], completionHandler: nil)}, label: {
-                    Image(systemName: "play.circle").resizable().aspectRatio(contentMode: .fit).frame(width: screenSize.width/7)
-                })
-            }).frame(width: screenSize.width, height: screenSize.height/13, alignment: .bottom)
-            
-            
+                /// On vérifie que la clef de la vidéo est bien présente
+                if (video_key != "")
+                {
+                    /// On vérifie que la création de l'URL est correcte
+                    if let videoUrl = URL(string: K.youtubeURL + video_key) {
+                        Button(action: {  UIApplication.shared.open(videoUrl, options: [:], completionHandler: nil)}, label: {
+                            Image(systemName: "play.circle").resizable().aspectRatio(contentMode: .fit).frame(width: screenSize.width/7)})
+                    } else {
+                        Text("Une erreur est survenue")
+                    }
+                } else {Text("Aucun vidéo disponible")}
+            }).frame(width: screenSize.width, height: screenSize.height/10, alignment: .top)
         })
         .frame(
             minWidth: 0,
@@ -135,6 +183,6 @@ struct MoviesDetailsView: View {
 
 struct MoviesView_Previews: PreviewProvider {
     static var previews: some View {
-        MoviesDetailsView(movie: nil)
+        MoviesDetailsView(movie: MovieDetails(id: 0, title: "Inexistant", original_title: "Inexistant", overview: "Pas disponible", genres: [Genre(id: -1, name: "null")], backdrop_path: "null", poster_path: "null", release_date: "null", runtime: 0, video: false), video_key: "")
     }
 }

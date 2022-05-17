@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class MovieTableViewCell: UITableViewCell {
     @IBOutlet weak var movieImage: UIImageView!
@@ -21,8 +22,6 @@ class MovieTableViewCell: UITableViewCell {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
     }
     
     override func prepareForReuse() {
@@ -31,14 +30,19 @@ class MovieTableViewCell: UITableViewCell {
         titleLabel.text = nil
         descriptionLabel.text = nil
         dateLabel.text = nil
-        movieImage.image = nil
+        movieImage.image = UIImage(named: "empty")
     }
     
-    func setupCell(title: String, description: String, date: String, image: UIImage) {
+    func setupCell(title: String, description: String, date: String, image: String) {
         titleLabel.text = title
         descriptionLabel.text = description
         dateLabel.text = date
-        movieImage.image = image
+        
+        /// On vérifie que l'URL parvient à être construit avant de charger
+        /// l'image de manière asynchrone
+        if let imageURL = URL(string: image) {
+            movieImage.load(url: imageURL, placeholder: UIImage(), cache: nil)
+        }
     }
 }
 
