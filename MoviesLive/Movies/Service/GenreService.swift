@@ -21,8 +21,7 @@ class GenreService {
             let decoder = JSONDecoder()
             
             do {
-                genres = try decoder.decode([Genre].self, from: data)
-                print(genres)
+                genres = try decoder.decode(GenrePage.self, from: data).genres
             } catch {
                 print(error)
             }

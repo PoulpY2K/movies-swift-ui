@@ -11,18 +11,23 @@ class MovieViewModel {
     var movies: [Movie] = []
     var imageURL: String = "https://image.tmdb.org/t/p/original"
     
-    func getMovies(completion: @escaping () -> ()) {
-        MovieService().loadPopularMovies() { movies in 
+    func getMovies(genreId: Int, completion: @escaping () -> ()) {
+        MovieService().loadGenreMovies(genreId: genreId) { movies in
             self.movies = movies
             completion()
         }
     }
     
-    func getMovieDetails(movieId: String, completion: @escaping (MovieDetails?) -> ()) {
+    func getMovieDetails(movieId: Int, completion: @escaping (MovieDetails?) -> ()) {
         MovieService().loadMovieDetails(movieId: movieId) { movieDetails in
             completion(movieDetails)
         }
     }
     
+    func getMovieVideo(movieId: Int, completion: @escaping (MovieVideo?) -> ()) {
+        MovieService().loadMovieVideoLink(movieId: movieId) { movieVideo in
+            completion(movieVideo)
+        }
+    }
     
 }

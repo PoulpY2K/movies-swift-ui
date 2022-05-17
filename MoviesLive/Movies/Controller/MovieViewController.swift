@@ -11,7 +11,9 @@ import SwiftUI
 class MovieViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
-    var _movieViewModel = MovieViewModel()
+    var movieViewModel = MovieViewModel()
+    
+    var genreId: Int?
     
     let cellReuseId: String = "MovieCellReuseId"
     
@@ -22,39 +24,24 @@ class MovieViewController: UIViewController {
         
         tableView.register(UINib(nibName: "MovieTableViewCell", bundle: nil), forCellReuseIdentifier: cellReuseId)
         
-        _movieViewModel.getMovies(){
-            self.tableView.reloadData()
+        if let idGenre = self.genreId {
+            movieViewModel.getMovies(genreId: idGenre) {
+                self.tableView.reloadData()
+            }
         }
-        
-        
     }
-    
-    @IBAction func presentNextAction(_ sender: Any) {
-        
-    }
-    
-    
-    /*
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
     
 }
 
 extension MovieViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _movieViewModel.movies.count
+        return movieViewModel.movies.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseId, for: indexPath) as! MovieTableViewCell
         
-        cell.setupCell(title: _movieViewModel.movies[indexPath.row].title, description: _movieViewModel.movies[indexPath.row].overview, date: _movieViewModel.movies[indexPath.row].release_date, image: _movieViewModel.imageURL + _movieViewModel.movies[indexPath.row].poster_path)
+        cell.setupCell(title: movieViewModel.movies[indexPath.row].title, description: movieViewModel.movies[indexPath.row].overview, date: movieViewModel.movies[indexPath.row].release_date, image: movieViewModel.imageURL + movieViewModel.movies[indexPath.row].poster_path)
         return cell
     }
     
@@ -63,11 +50,22 @@ extension MovieViewController: UITableViewDataSource {
 
 extension MovieViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let swiftUIView = MoviesDetailsView(movie: _movieViewModel.movies[indexPath.row])
-        let hostVC = UIHostingController(rootView: swiftUIView)
         
-        present(hostVC, animated: true) {
-            print("Presented")
+        let movieId: Int = movieViewModel.movies[indexPath.row].id
+        
+        movieViewModel.getMovieDetails(movieId: movieId) { [self] movie in
+            if let finalMovie = movie {
+                movieViewModel.getMovieVideo(movieId: movieId) { [self] movieVideo in
+                    let swiftUIView = MoviesDetailsView(movie: finalMovie, video_link: movieVideo?.key)
+                    let hostVC = UIHostingController(rootView: swiftUIView)
+                    
+                    present(hostVC, animated: true) {
+                    }
+                }
+            } else {
+                // Implémenter un toaster afin de prévenir l'utilisateur
+                print("Une erreur est survenue !")
+            }
         }
     }
 }

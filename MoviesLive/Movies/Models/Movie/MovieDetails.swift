@@ -10,6 +10,7 @@ import Foundation
 struct MovieDetails: Codable, Equatable {
     let id: Int
     let title: String
+    let original_title: String
     let overview: String
     let genres: [Genre]
     let backdrop_path: String
