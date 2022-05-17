@@ -11,7 +11,7 @@ import Foundation
 struct K {
     
     // CLEF DE L'API TMDB À MODIFIER AVEC LA VOTRE !
-    static let apiKey: String = "97c9243f1e93077660701f0bae3394b9"
+    static let apiKey: String = ""
     
     static let movieApiBaseUrl: String = "https://api.themoviedb.org/3/movie"
     static let genreApiBaseUrl: String = "https://api.themoviedb.org/3/genre"
